@@ -1,12 +1,13 @@
 body {
     margin: 0;
     padding: 0;
+    background: #f33;
 }
 
 #map {
     width: 100vw;
     height: 100vh;
-    background: violet;
+    background: #f33;
 }
 
 
@@ -67,11 +68,6 @@ body {
     color: #4f4f4f;
     overflow: auto;
 }
-
-/*.modalWindow__reviewInfo {
-    display: flex;
-    justify-content: space-between;
-}*/
 
 
 .modalWindow__reviewAuthor{
@@ -144,7 +140,7 @@ body {
 }
 
 
-/*Стили для шаблона содержимого баллуна кластеризатора*/
+/*Стили для содержимого баллуна кластеризатора*/
 .review {
     display: flex;
     flex-flow: column;
@@ -172,3 +168,4 @@ body {
     text-align: right;
     color: #a3a3a3;
 }
+
