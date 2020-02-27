@@ -142,3 +142,33 @@ body {
     
     outline: none;
 }
+
+
+/*Стили для шаблона содержимого баллуна кластеризатора*/
+.review {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    min-height: 177px;
+}
+.review div {
+    margin-bottom: .5rem;
+    
+}
+
+.review:last-child {
+    margin-bottom: none;
+}
+
+.review__place {
+    font-weight: bold;
+}
+
+.review__main {
+    flex-grow: 1;
+}
+
+.review__time {
+    text-align: right;
+    color: #a3a3a3;
+}

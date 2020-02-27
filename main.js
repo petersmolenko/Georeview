@@ -9,7 +9,17 @@ function init() {
         behaviors: ['drag']
     });
 
-    const clusterTemlate = ymaps.templateLayoutFactory.createClass(reviewInCluster__template.textContent)
+    const clusterTemlate = ymaps.templateLayoutFactory.createClass(reviewInCluster__template.textContent, {
+        build: function() {
+            this.constructor.superclass.build.call(this);
+            const data = this.getData().properties._data;
+
+            this.getParentElement().querySelector('.review__addressLink').addEventListener('click', e=>{
+                e.preventDefault();
+                openBaloon(data.coords)
+            })
+        }
+    })
 
     let clusterer = new ymaps.Clusterer({
             preset: 'islands#invertedVioletClusterIcons',
@@ -17,8 +27,6 @@ function init() {
             clusterDisableClickZoom: true,
             clusterBalloonContentLayout: 'cluster#balloonCarousel',
             clusterBalloonItemContentLayout: clusterTemlate,
-            clusterHideIconOnBalloonOpen: false,
-            geoObjectHideIconOnBalloonOpen: false
         });
 
     clusterer.options.set({
@@ -51,53 +59,65 @@ function init() {
     const modalWindowLayout = ymaps.templateLayoutFactory.createClass(template.textContent, {
         build: function () {
             this.constructor.superclass.build.call(this);
-            this._rootWindow = this.getParentElement().querySelector('#modalWindow');
-            this._rootPosition = this._rootWindow.getBoundingClientRect();
 
-            if(this.getData()['geoObject']) {
-                coords = this.getData().properties._data.coords;
-                this._rootWindow.querySelector('.modalWindow__reviews').innerHTML = '';
-                this.getData().properties._data.reviews.forEach(el=>{
-                    this._rootWindow.querySelector('.modalWindow__reviews').innerHTML += new ymaps.Template(review__template.textContent).build(new ymaps.data.Manager(el)).text;
-                })
+            let coords;
+            const root = this.getParentElement().querySelector('#modalWindow');
+            const reviewsElem = root.querySelector('.modalWindow__reviews');
 
+            this._rootPosition = root.getBoundingClientRect();
+
+            if (this.getData()['geoObject']) {
+                const data = this.getData().properties._data;
+
+                coords = data.coords;
+                reviewsElem.innerHTML = new ymaps.Template(review__template.textContent).build(new ymaps.data.Manager(data.review)).text;
             } else {
-                coords = this.getData().coords
+                coords = this.getData().coords;
+
+                if (reviews[coords.join(':')]) {
+                    reviewsElem.innerHTML = '';
+                    reviews[coords.join(':')].forEach(review=>{
+                        reviewsElem.innerHTML += new ymaps.Template(review__template.textContent).build(new ymaps.data.Manager(review)).text;
+                    })
+                }
             }
 
 
             ymaps.geocode(coords).then(res=>{
-                this._address = res.geoObjects.get(0).properties;
-                this._rootWindow.querySelector('.modalWindow__head-title').textContent = this._address.get('text');
+                const address = res.geoObjects.get(0).properties.get('text');
+
+                root.querySelector('.modalWindow__head-title').textContent = address;
+
+                root.querySelector('.modalWindow__head-cross').addEventListener('click', this.onCloseClick.bind(this));
+
+                root.querySelector('.modalWindow__formAddBtn').addEventListener('click', e=>{
+                    const time = new Date();
+                    console.log(time.getMonth());
+                    const review = new Review(
+                        root.querySelector('.modalWindow__formNameField').value,
+                        root.querySelector('.modalWindowPlaceField').value,
+                        `${(time.getDate()<10)?'0':''}${time.getDate()}.${(time.getMonth()<10)?'0':''}${time.getMonth()}.${time.getFullYear()}, ${time.getHours()}:${(time.getMinutes()<10)?'0':''}${time.getMinutes()}`,
+                        root.querySelector('.modalWindow__formReviewField').value,
+                        address);
+
+                    if (!reviews[coords.join(':')]) {
+                        reviewsElem.innerHTML = ''
+                    }
+
+
+                    reviewsElem.innerHTML += new ymaps.Template(review__template.textContent).build(new ymaps.data.Manager(review)).text;
+
+                    if (!reviews[coords.join(':')]) {
+                        reviews[coords.join(':')] = []
+                    }
+
+                    reviews[coords.join(':')].push(review);
+
+                    clusterer.add(createPlacemark(coords, review));
+                })
             })
 
-            this._rootWindow.querySelector('.modalWindow__head-cross').addEventListener('click', this.onCloseClick.bind(this));
-            this._rootWindow.querySelector('.modalWindow__formAddBtn').addEventListener('click', e=>{
-                const _root = this._rootWindow;
-                const _date = new Date();
-                const _review = new Review(
-                        _root.querySelector('.modalWindow__formNameField').value,
-                        _root.querySelector('.modalWindowPlaceField').value,
-                        `${(_date.getDate()<10)?'0':''}${_date.getDate()}.
-                        ${(_date.getMonth()<10)?'0':''}${_date.getMonth()}.
-                        ${_date.getFullYear()}, 
-                        ${_date.getHours()}:${_date.getMinutes()}
-                        `,
-                        _root.querySelector('.modalWindow__formReviewField').value,
-                        this._address.get('text'));
-                if (_root.querySelector('.modalWindow__reviews .modalWindow__reviewEmpty')) {
-                    _root.querySelector('.modalWindow__reviews .modalWindow__reviewEmpty').remove()
-                }
-                _root.querySelector('.modalWindow__reviews').innerHTML += new ymaps.Template(review__template.textContent).build(new ymaps.data.Manager(_review)).text;
-
-                
             
-                if (!reviews[coords.join(':')]) reviews[coords.join(':')] = [];
-                reviews[coords.join(':')].push(_review);
-
-                clusterer.add(createPlacemark(coords));
-                
-            })
         },
         clear: function () {
             this.constructor.superclass.clear.call(this);
@@ -120,18 +140,18 @@ function init() {
 
     });
     
-
-            // Помещаем созданный шаблон в хранилище шаблонов. Теперь наш шаблон доступен по ключу 'my#theaterlayout'.
     ymaps.layout.storage.add('my#modalWindowlayout', modalWindowLayout);
 
-    var balloon = map.balloon;
-    map.events.add('click', function (e) {
-        balloon.open(e.get('coords'), {coords: e.get('coords')}, {
+    map.events.add('click', e=>openBaloon(e.get('coords')));
+
+
+    function openBaloon(coords) {
+        map.balloon.open(coords, {coords: coords}, {
             layout: 'my#modalWindowlayout',
             autoPan: true,
             autoPanMargin: 40
         });
-    });
+    }
 
     function createPlacemark(coords, review) {
         return new ymaps.Placemark(coords, {
