@@ -1,7 +1,7 @@
 ymaps.ready(init);
 
 function init() {
-    // document.querySelector('#map').style.position = 'relative';
+    //Констуктор отзыва
     const Review = function(author, place, time, salt, address) {
         this.author = author;
         this.place = place;
@@ -10,15 +10,20 @@ function init() {
         this.address = address
     }
 
+    //reviews - объект для хранения отзывов по заданным координатам, объект инициализируется данными из localStorage при их наличии
     const reviews = localStorage.reviews?JSON.parse(localStorage.reviews):{};
 
     const map = new ymaps.Map('map', {
         center: [55.75320640051442, 37.622596207631304],
         zoom: 12,
         controls: ['zoomControl'],
-        behaviors: ['drag']
+        behaviors: ['drag'],
+        dragCursor: 'crosschair'
     });
 
+    map.cursors.push('arrow')
+
+    //clustererTemplate - шаблон для баллуна кластерера
     const clustererTemplate = ymaps.templateLayoutFactory.createClass(reviewInCluster__template.textContent, {
         build: function() {
             this.constructor.superclass.build.call(this);
@@ -44,16 +49,19 @@ function init() {
  
     map.geoObjects.add(clusterer);
 
+
+    //В случае если страница закрывается или обновляется reviews сохраняется в localStorage
     window.addEventListener('beforeunload', ()=>{
         localStorage.reviews = JSON.stringify(reviews)
     });
 
+    //при загрузке карты происходит создание и отрисовка меток, на основе отзывов из объекта reviews, загруженных из localStorage
     for(let place in reviews) {
         reviews[place].forEach(review=> {
             clusterer.add(createPlacemark(place.split(':'), review));
         }) 
     }
-   
+   //Шаблон для модального окна
     const modalWindowLayout = ymaps.templateLayoutFactory.createClass(template.textContent, {
         build: function () {
             this.constructor.superclass.build.call(this);
