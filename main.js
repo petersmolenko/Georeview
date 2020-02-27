@@ -42,18 +42,14 @@ function init() {
         localStorage.reviews = JSON.stringify(reviews)
     };
 
-    for(let place in reviews){
-        const placemark = createPlacemark(place.split(':'));
-        if (reviews[place].length>1){
-            placemark.options._options.preset = 'islands#violetCircleIcon';
-        }
-        placemark.properties._data.iconContent = reviews[place].length
-        clusterer.add(placemark);
+    for(let place in reviews) {
+        reviews[place].forEach(review=>{
+            clusterer.add(createPlacemark(place.split(':'), review));
+        }) 
     }
    
     const modalWindowLayout = ymaps.templateLayoutFactory.createClass(template.textContent, {
         build: function () {
-            // const coords;
             this.constructor.superclass.build.call(this);
             this._rootWindow = this.getParentElement().querySelector('#modalWindow');
             this._rootPosition = this._rootWindow.getBoundingClientRect();
@@ -99,23 +95,7 @@ function init() {
                 if (!reviews[coords.join(':')]) reviews[coords.join(':')] = [];
                 reviews[coords.join(':')].push(_review);
 
-                if (reviews[coords.join(':')].length === 1){
-                    const placemark = createPlacemark(coords);
-                    this._currentPlacemark = placemark;
-                    this._reviewCount = 1;
-                    clusterer.add(placemark)
-                } else {
-                    if(this.getData().geoObject) {
-                        this._currentPlacemark = this.getData().geoObject;
-                        this._currentPlacemark.properties._data.iconContent = ((Number(this._currentPlacemark.properties._data.iconContent))+1)
-                    } else {
-                        if (this._reviewCount === 2) {
-                            this._currentPlacemark.options._options.preset = 'islands#violetCircleIcon'
-                        }
-                        this._currentPlacemark.properties._data.iconContent = ++this._reviewCount;  
-                    }
-                    
-                }
+                clusterer.add(createPlacemark(coords));
                 
             })
         },
@@ -153,11 +133,10 @@ function init() {
         });
     });
 
-    function createPlacemark(coords) {
+    function createPlacemark(coords, review) {
         return new ymaps.Placemark(coords, {
             coords: coords, 
-            reviews: reviews[coords.join(':')],
-            iconContent: ''
+            review: review
         }, 
         {
             preset: 'islands#violetDotIcon',
