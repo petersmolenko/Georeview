@@ -1,0 +1,144 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    width: 100vw;
+    height: 100vh;
+    background: violet;
+}
+
+
+::-webkit-scrollbar-track {
+    background-color: white;
+}
+
+::-webkit-scrollbar {
+    width: .4rem;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #c4c4c4;
+}
+.modalWindow {
+    min-width: 380px;
+    border-radius: 1rem;
+    overflow: hidden;
+    font-family: 'Fira Sans', sans-serif;
+    background: white;
+}
+
+
+.modalWindow__head, .modalWindow__reviewsWrapper, .modalWindow__form {
+    padding: 1rem;
+}
+
+.modalWindow__head {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    font-size: 0.75rem;
+    flex-flow: row nowrap;
+    background: #ff8663;
+    color: white;
+}
+.modalWindow__headLogo {
+    padding-right: .5rem;
+}
+.modalWindow__head-title {
+    flex-grow: 1;
+}
+
+.modalWindow__head-cross, .modalWindow__headLogo{
+    font-weight: bold;
+    font-size: .875rem;
+}
+
+.modalWindow__head-cross:hover {
+    cursor: pointer;
+}
+
+.modalWindow__reviews {
+    height: 7.2rem;
+    box-sizing: border-box;
+    color: #4f4f4f;
+    overflow: auto;
+}
+
+/*.modalWindow__reviewInfo {
+    display: flex;
+    justify-content: space-between;
+}*/
+
+
+.modalWindow__reviewAuthor{
+    font-weight: bold;
+}
+.modalWindow__reviewPlace {
+    font-weight: bold;
+    color: #a3a3a3;
+}
+
+.modalWindow__reviewTime {
+    color: #a3a3a3;
+}
+
+.modalWindow__reviewBody {
+    padding: .6rem 0 1.1rem 0;
+}
+
+.modalWindow__form {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+.modalWindow__formNameField, .modalWindowPlaceField, .modalWindow__formReviewField {
+    margin-top: 1rem;
+    padding: .5rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid #a3a3a3;
+    font-family: 'Fira Sans', sans-serif;
+}
+.modalWindow__formNameField:focus, .modalWindowPlaceField:focus, .modalWindow__formReviewField:focus {
+    outline: none;
+}
+
+.modalWindow__formTitle {
+    padding-top: 1rem;
+    line-height: 1;
+    border-top: 1px solid #a3a3a3;
+    color: #ff8663;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.modalWindow__formReviewField {
+    resize: none;
+}
+
+.modalWindow__formAddBlock {
+    margin-top: 1rem;
+    display: flex;
+    flex-flow: row-reverse wrap;
+}
+
+.modalWindow__formAddBtn {
+    padding: .5rem 1rem;
+    color: white;
+    background: #ff8663;
+    font-size: .75rem;
+    border-radius: .7rem;
+    border: none;
+}
+
+.modalWindow__formAddBtn:hover {
+    cursor: pointer;
+}
+
+.modalWindow__formAddBtn:active, .modalWindow__formAddBtn:focus {
+    
+    outline: none;
+}

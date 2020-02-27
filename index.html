@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1" /> 
+    <title>Georeview</title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/b11fe38f14.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="map" class="map"></div>
+    
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=8f6837c3-b9fa-4df9-a251-1f62367037c8&lang=ru_RU" type="text/javascript">
+    </script>
+    <script src="main.js"></script>
+    <script id="template" type="yamaps-template">
+        <div id="modalWindow" class="modalWindow">
+            <div class="modalWindow__head">
+                <div class="modalWindow__headLogo"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="modalWindow__head-title">Адрес загружается...</div>
+                <div class="modalWindow__head-cross"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="modalWindow__reviewsWrapper">
+                <div class="modalWindow__reviews">
+                    <div class="modalWindow__review">
+                        <div class="modalWindow__reviewEmpty">Отзывы отсутствуют.</div>
+                    </div>
+                </div> 
+            </div>
+            <div class="modalWindow__form">
+                <div class="modalWindow__formTitle">Ваш отзыв</div>
+                <input type="text" name="" id="" class="modalWindow__formNameField" placeholder="Ваше имя">
+                <input type="text" name="" id="" class="modalWindowPlaceField" placeholder="Укажите место">
+                <textarea type="text" name="" id="" class="modalWindow__formReviewField" placeholder="Поделитесь впечатлениями" rows="6"></textarea>
+                <div class="modalWindow__formAddBlock">
+                    <button class="modalWindow__formAddBtn">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="review__template" type="yamaps-template">
+        <div class="modalWindow__review">
+            <div class="modalWindow__reviewInfo">
+                <span class="modalWindow__reviewAuthor">{{ author|default: "Dorian Grey" }}</span>
+                <span class="modalWindow__reviewPlace">{{ place }}</span>
+                <span class="modalWindow__reviewTime">{{ time }}</span>
+            </div>
+            <div class="modalWindow__reviewBody">{{ salt }}</div>
+        </div>
+    </script>
+    
+    <script id="reviewInCluster__template" type="yamaps-template">
+        {% for review in properties.reviews %}'
+        <div class="review">
+            <div class="review__place">{{review.place|raw}}</div>
+            <div class="review__address">{{review.address|raw}}</div>
+            <div class="review__salt">{{review.salt|raw}}</div>
+            <div class="review__time">{{review.time|raw}}</div>
+        </div>
+        {% endfor %}
+    </script>
+</body>
+</html>
