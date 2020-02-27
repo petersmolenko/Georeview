@@ -1,6 +1,16 @@
 ymaps.ready(init);
 
 function init() {
+    // document.querySelector('#map').style.position = 'relative';
+    const Review = function(author, place, time, salt, address) {
+        this.author = author;
+        this.place = place;
+        this.time = time;
+        this.salt = salt;
+        this.address = address
+    }
+
+    const reviews = localStorage.reviews?JSON.parse(localStorage.reviews):{};
 
     const map = new ymaps.Map('map', {
         center: [55.75320640051442, 37.622596207631304],
@@ -9,7 +19,7 @@ function init() {
         behaviors: ['drag']
     });
 
-    const clusterTemlate = ymaps.templateLayoutFactory.createClass(reviewInCluster__template.textContent, {
+    const clustererTemplate = ymaps.templateLayoutFactory.createClass(reviewInCluster__template.textContent, {
         build: function() {
             this.constructor.superclass.build.call(this);
             const data = this.getData().properties._data;
@@ -26,32 +36,20 @@ function init() {
             groupByCoordinates: false,
             clusterDisableClickZoom: true,
             clusterBalloonContentLayout: 'cluster#balloonCarousel',
-            clusterBalloonItemContentLayout: clusterTemlate,
+            clusterBalloonItemContentLayout: clustererTemplate,
+            clusterHideIconOnBalloonOpen: false,
+            gridSize: 80
         });
 
-    clusterer.options.set({
-        gridSize: 80,
-        clusterDisableClickZoom: true
-    });
  
     map.geoObjects.add(clusterer);
 
-    const Review = function(author, place, time, salt, address) {
-        this.author = author;
-        this.place = place;
-        this.time = time;
-        this.salt = salt;
-        this.address = address
-    }
-
-    const reviews = localStorage.reviews?JSON.parse(localStorage.reviews):{};
-
-    window.onbeforeunload = function() {
+    window.addEventListener('beforeunload', ()=>{
         localStorage.reviews = JSON.stringify(reviews)
-    };
+    });
 
     for(let place in reviews) {
-        reviews[place].forEach(review=>{
+        reviews[place].forEach(review=> {
             clusterer.add(createPlacemark(place.split(':'), review));
         }) 
     }
@@ -88,7 +86,10 @@ function init() {
 
                 root.querySelector('.modalWindow__head-title').textContent = address;
 
-                root.querySelector('.modalWindow__head-cross').addEventListener('click', this.onCloseClick.bind(this));
+                root.querySelector('.modalWindow__head-cross').addEventListener('click', e=>{
+                    e.preventDefault();
+                    this.events.fire('userclose');
+                });
 
                 root.querySelector('.modalWindow__formAddBtn').addEventListener('click', e=>{
                     const time = new Date();
@@ -118,15 +119,6 @@ function init() {
             })
 
             
-        },
-        clear: function () {
-            this.constructor.superclass.clear.call(this);
-        },
-
-        onCloseClick: function (e) {
-            e.preventDefault();
-
-            this.events.fire('userclose');
         },
 
         getShape: function () {
@@ -160,7 +152,8 @@ function init() {
         }, 
         {
             preset: 'islands#violetDotIcon',
-            balloonLayout: 'my#modalWindowlayout'
+            balloonLayout: 'my#modalWindowlayout',
+            hideIconOnBalloonOpen: false
         });
     }
 }
